@@ -1,6 +1,7 @@
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
+import { adminRouter } from './admin/admin.routes.js'
 import { authRouter } from './auth/auth.routes.js'
 import { env } from './config/env.js'
 import { documentRouter } from './documents/document.routes.js'
@@ -23,6 +24,7 @@ app.get('/api/health', (_request, response) => {
 })
 
 app.use('/api/auth', authRouter)
+app.use('/api/admin', adminRouter)
 app.use('/api/driver', driverRouter)
 app.use('/api/documents', documentRouter)
 app.use('/api/jobs', jobRouter)

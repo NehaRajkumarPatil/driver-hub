@@ -1,4 +1,4 @@
-import { NotificationType } from '@prisma/client'
+import { type Job, type Prisma, NotificationType } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
 
 type NotificationInput = {
@@ -12,14 +12,13 @@ type NotificationInput = {
 export const createNotification = (input: NotificationInput) =>
   prisma.notification.create({ data: input })
 
-export const notifyMatchingDriversForJob = async (jobId: string) => {
-  const job = await prisma.job.findUnique({
-    where: { id: jobId },
-    include: { employer: true },
-  })
-  if (!job || job.status !== 'APPROVED') return
-
-  const drivers = await prisma.driverProfile.findMany({
+export const notifyMatchingDriversForApprovedJob = async (
+  transaction: Prisma.TransactionClient,
+  job: Pick<Job, 'id' | 'title' | 'driverCategory' | 'location' | 'employerId'> & {
+    employer: { companyName: string }
+  },
+) => {
+  const drivers = await transaction.driverProfile.findMany({
     where: {
       isProfilePublic: true,
       OR: [
@@ -32,7 +31,7 @@ export const notifyMatchingDriversForJob = async (jobId: string) => {
 
   if (drivers.length === 0) return
 
-  await prisma.notification.createMany({
+  await transaction.notification.createMany({
     data: drivers.map(({ userId }) => ({
       userId,
       type: NotificationType.MATCHED_JOB,

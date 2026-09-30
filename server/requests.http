@@ -66,3 +66,94 @@ Content-Type: application/json
 ### Admin account check
 GET {{baseUrl}}/auth/me
 Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+
+### Admin dashboard stats
+GET {{baseUrl}}/admin/stats
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+
+### List drivers for moderation
+# @name adminDrivers
+GET {{baseUrl}}/admin/users?role=DRIVER&status=ACTIVE&page=1&limit=25
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+
+### Block the first listed driver
+PATCH {{baseUrl}}/admin/users/{{adminDrivers.response.body.$.data.users[0].id}}/status
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "BLOCKED"
+}
+
+### Unblock the first listed driver
+PATCH {{baseUrl}}/admin/users/{{adminDrivers.response.body.$.data.users[0].id}}/status
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "ACTIVE"
+}
+
+### List pending job posts
+# @name adminPendingJobs
+GET {{baseUrl}}/admin/jobs?status=PENDING&page=1&limit=25
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+
+### Approve the first pending job
+PATCH {{baseUrl}}/admin/jobs/{{adminPendingJobs.response.body.$.data.jobs[0].id}}/status
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "APPROVED"
+}
+
+### Reject the second pending job
+PATCH {{baseUrl}}/admin/jobs/{{adminPendingJobs.response.body.$.data.jobs[1].id}}/status
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "REJECTED"
+}
+
+### Block a job post
+PATCH {{baseUrl}}/admin/jobs/{{adminPendingJobs.response.body.$.data.jobs[1].id}}/status
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+Content-Type: application/json
+
+{
+  "status": "BLOCKED"
+}
+
+### List all applications
+GET {{baseUrl}}/admin/applications?page=1&limit=25
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
+
+### Login as the seeded employer who owns the pending seed jobs
+# @name loginSeedEmployer
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "jobs@goodwellsupply.com",
+  "password": "Employer@123"
+}
+
+### Confirm the employer received the job approval notification
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{loginSeedEmployer.response.body.$.data.accessToken}}
+
+### Login as a seeded driver whose preferred category is TRUCK
+# @name loginMatchingDriver
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "jamie@driverhub.com",
+  "password": "Driver@123"
+}
+
+### Confirm matching drivers received the approved job notification
+GET {{baseUrl}}/notifications
+Authorization: Bearer {{loginMatchingDriver.response.body.$.data.accessToken}}
