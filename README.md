@@ -7,25 +7,26 @@ Driver Hub connects professional drivers with employers hiring for driver roles.
 - `client/`: existing responsive React experience and Android Capacitor project.
 - `server/`: Express API, Prisma schema/migrations, seed data, and API tests.
 
-The client UI is still the original local demo in this phase. Frontend authentication and API integration are planned for Phase 4.
+The client uses API authentication and the Driver workspace is connected to live API data. Employer and Admin workspaces remain role-protected Phase 5 surfaces.
 
 ## Setup
 
 ```sh
 npm install
 Copy-Item server/.env.example server/.env
+Copy-Item client/.env.example client/.env
 ```
 
-Set a real PostgreSQL `DATABASE_URL` and a random `JWT_SECRET` of at least 32 characters in `server/.env`. Then run:
+Set a real PostgreSQL `DATABASE_URL` and a random `JWT_SECRET` of at least 32 characters in `server/.env`. Keep `CLIENT_ORIGIN=http://localhost:5173` for local browser CORS. Set `VITE_API_URL=http://localhost:4000/api` in `client/.env`. Then run:
 
 ```sh
 npm run db:generate
 npm run db:migrate
 npm run db:seed
-npm run dev:server
+npm run dev:all
 ```
 
-In another terminal, start the existing web client with `npm run dev`. The API listens on port 4000 by default; its REST prefix is `/api`.
+`npm run dev:all` starts both processes: the API on port 4000 and the Vite client on port 5173. The API REST prefix is `/api`.
 
 ## Phase 1 API
 
