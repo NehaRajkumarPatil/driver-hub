@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  DRIVER
+  EMPLOYER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum DocumentType {
+  RESUME
+  LICENSE
+  ID_PROOF
+  OTHER
+}
+
+enum DriverCategory {
+  CAR
+  TAXI
+  TRUCK
+  BUS
+  DELIVERY
+  PERSONAL
+  HEAVY
+  OTHER
+}
+
+enum JobStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CLOSED
+  BLOCKED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  VIEWED
+  SHORTLISTED
+  REJECTED
+  HIRED
+}
+
+enum NotificationType {
+  JOB_APPROVED
+  APPLICATION_RECEIVED
+  APPLICATION_STATUS
+  MATCHED_JOB
+  SYSTEM
+}
+
+model User {
+  id              String           @id @default(uuid()) @db.Uuid
+  name            String
+  email           String           @unique
+  phone           String?
+  passwordHash    String
+  role            UserRole
+  status          UserStatus       @default(ACTIVE)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  driverProfile   DriverProfile?
+  employerProfile EmployerProfile?
+  documents       Document[]
+  notifications   Notification[]
+
+  @@index([role, status])
+  @@index([createdAt])
+}
+
+model DriverProfile {
+  userId                 String             @id @db.Uuid
+  location               String?
+  dob                    DateTime?          @db.Date
+  bio                    String?
+  licenseType            String?
+  licenseNumber          String?
+  licenseExpiry          DateTime?          @db.Date
+  totalExperienceYears   Float              @default(0)
+  skills                 String[]           @default([])
+  preferredCategories    String[]           @default([])
+  expectedSalary         Decimal?           @db.Decimal(10, 2)
+  availability           String?
+  isProfilePublic        Boolean            @default(true)
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiences            DriverExperience[]
+  applications           Application[]
+  savedJobs              SavedJob[]
+
+  @@index([location])
+  @@index([isProfilePublic, location])
+}
+
+model DriverExperience {
+  id           String        @id @default(uuid()) @db.Uuid
+  driverId     String        @db.Uuid
+  vehicleType  String
+  employerName String
+  years        Float
+  notes        String?
+  driver       DriverProfile @relation(fields: [driverId], references: [userId], onDelete: Cascade)
+
+  @@index([driverId])
+}
+
+model Document {
+  id         String       @id @default(uuid()) @db.Uuid
+  userId     String       @db.Uuid
+  type       DocumentType
+  fileUrl    String
+  fileName   String
+  uploadedAt DateTime     @default(now())
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, uploadedAt])
+}
+
+model EmployerProfile {
+  userId      String   @id @db.Uuid
+  companyName String
+  industry    String?
+  description String?
+  location    String?
+  website     String?
+  logoUrl     String?
+  verified    Boolean  @default(false)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs        Job[]
+
+  @@index([companyName])
+  @@index([location])
+}
+
+model Job {
+  id                String          @id @default(uuid()) @db.Uuid
+  employerId        String          @db.Uuid
+  title             String
+  driverCategory    DriverCategory
+  description       String
+  location          String
+  salaryMin         Decimal?        @db.Decimal(10, 2)
+  salaryMax         Decimal?        @db.Decimal(10, 2)
+  experienceRequired Float          @default(0)
+  workingHours      String?
+  requiredDocuments String[]        @default([])
+  vacancies         Int             @default(1)
+  status            JobStatus       @default(PENDING)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  employer          EmployerProfile @relation(fields: [employerId], references: [userId], onDelete: Cascade)
+  applications      Application[]
+  savedBy           SavedJob[]
+
+  @@index([status, createdAt])
+  @@index([driverCategory, status])
+  @@index([location, status])
+  @@index([employerId, createdAt])
+}
+
+model Application {
+  id         String            @id @default(uuid()) @db.Uuid
+  jobId      String            @db.Uuid
+  driverId   String            @db.Uuid
+  status     ApplicationStatus @default(APPLIED)
+  coverNote  String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  job        Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  driver     DriverProfile     @relation(fields: [driverId], references: [userId], onDelete: Cascade)
+
+  @@unique([jobId, driverId])
+  @@index([jobId, status])
+  @@index([driverId, createdAt])
+}
+
+model SavedJob {
+  driverId  String        @db.Uuid
+  jobId     String        @db.Uuid
+  createdAt DateTime      @default(now())
+  driver    DriverProfile @relation(fields: [driverId], references: [userId], onDelete: Cascade)
+  job       Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([driverId, jobId])
+  @@index([jobId])
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+}

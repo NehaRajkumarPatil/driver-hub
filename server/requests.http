@@ -1,0 +1,68 @@
+@baseUrl = http://localhost:4000/api
+
+### API health
+GET {{baseUrl}}/health
+
+### Register a demo driver
+# @name registerDriver
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Jamie Driver",
+  "email": "jamie.rest@example.com",
+  "phone": "+1-416-555-0140",
+  "password": "StrongPass123",
+  "role": "DRIVER"
+}
+
+### Register a demo employer
+# @name registerEmployer
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Morgan Lee",
+  "email": "morgan.rest@example.com",
+  "password": "StrongPass123",
+  "role": "EMPLOYER",
+  "companyName": "Northstar Freight"
+}
+
+### Login with a demo driver
+# @name loginDriver
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "jamie.rest@example.com",
+  "password": "StrongPass123"
+}
+
+### Get the signed-in account
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{loginDriver.response.body.$.data.accessToken}}
+
+### Reject self-registration as admin
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Not an admin",
+  "email": "not-admin@example.com",
+  "password": "StrongPass123",
+  "role": "ADMIN"
+}
+### Login as seeded admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@driverhub.com",
+  "password": "Admin@123"
+}
+
+### Admin account check
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{loginAdmin.response.body.$.data.accessToken}}
