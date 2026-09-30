@@ -6,7 +6,7 @@ A job portal built for **driver recruitment**. Drivers find and apply for jobs, 
 |---|---|
 | 🌐 **Web app** | https://driver-hub-phi.vercel.app |
 | ⚙️ **API** | https://driver-hub-vw8f.onrender.com/api |
-| 📱 **Android APK** | _<add your Google Drive link>_ |
+| 📱 **Android APK** | https://drive.google.com/file/d/1k3x0ygD4YPJCP-iazNwOwyzmtkIwbarL/view?usp=sharing |
 | 💻 **Source** | https://github.com/NehaRajkumarPatil/driver-hub |
 
 > **Note:** the API runs on a free Render instance, so the first request after inactivity can take up to a minute. Open `/api/health` once to wake it.
