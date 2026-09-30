@@ -27,4 +27,5 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!client/.env.production
 server/uploads/

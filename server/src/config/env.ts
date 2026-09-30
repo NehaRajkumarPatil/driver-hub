@@ -24,6 +24,10 @@ export const env = {
   databaseUrl: parsedEnv.data.DATABASE_URL,
   jwtSecret: parsedEnv.data.JWT_SECRET,
   jwtExpiresIn: parsedEnv.data.JWT_EXPIRES_IN,
-  clientOrigins: parsedEnv.data.CLIENT_ORIGIN.split(',').map((origin) => origin.trim()),
+  clientOrigins: Array.from(new Set([
+    ...parsedEnv.data.CLIENT_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean),
+    'https://localhost',
+    'capacitor://localhost',
+  ])),
   uploadDir: parsedEnv.data.UPLOAD_DIR,
 }
