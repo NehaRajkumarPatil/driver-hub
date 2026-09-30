@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: driver-hub-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run db:generate --workspace server && npm run build --workspace server
+    startCommand: npm run start --workspace server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: UPLOAD_DIR
+        value: uploads

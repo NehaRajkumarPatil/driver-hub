@@ -41,7 +41,10 @@ export const createEmployerJob = (employerId: string, input: EmployerJobInput) =
 export const listEmployerJobs = (employerId: string) =>
   prisma.job.findMany({
     where: { employerId },
-    include: { _count: { select: { applications: true } } },
+    include: {
+      employer: { select: { companyName: true, verified: true } },
+      _count: { select: { applications: true } },
+    },
     orderBy: { createdAt: 'desc' },
   })
 

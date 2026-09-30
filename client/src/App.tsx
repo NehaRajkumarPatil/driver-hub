@@ -1,8 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { homeForRole, useAuth } from './auth/AuthContext'
+import AdminWorkspace from './pages/AdminWorkspace'
 import DriverWorkspace from './pages/DriverWorkspace'
-import { LoginPage, RegisterPage, RoleLandingPage } from './pages/AuthPages'
+import EmployerWorkspace from './pages/EmployerWorkspace'
+import { LoginPage, RegisterPage } from './pages/AuthPages'
 import './App.css'
 
 function RootRedirect() {
@@ -20,10 +22,10 @@ function App() {
       <Route path="/driver" element={<DriverWorkspace />} />
     </Route>
     <Route element={<ProtectedRoute roles={['EMPLOYER']} />}>
-      <Route path="/employer" element={<RoleLandingPage role="EMPLOYER" />} />
+      <Route path="/employer" element={<EmployerWorkspace />} />
     </Route>
     <Route element={<ProtectedRoute roles={['ADMIN']} />}>
-      <Route path="/admin" element={<RoleLandingPage role="ADMIN" />} />
+      <Route path="/admin" element={<AdminWorkspace />} />
     </Route>
     <Route path="*" element={<RootRedirect />} />
   </Routes>
